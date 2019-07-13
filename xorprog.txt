@@ -1,0 +1,62 @@
+clear all;
+clc;
+
+
+%**********************XORINPUT*********************************
+trn_input=[0 1 0 1;0 0 1 1];
+trn_target=[0 1 1 0];
+
+%***************OR INPUT****************************************
+% trn_input=[0 1 0 1;0 0 1 1];
+% trn_target=[0 1 1 1];
+
+
+%*****************DATA VISUALIZATION***************************
+x=(trn_input(1,:))';
+y=(trn_input(2,:))';
+scatter3(x,y,trn_target,75,'filled');
+axis square;
+grid on;
+hold on;
+
+%*****************************TRAINING*************************
+net = newff(minmax(trn_input),[2 1],{'logsig','purelin'},'trainlm');
+net.trainParam.epochs = 300;
+net.trainParam.goal = 0.001;
+[net1,tr1]=train(net,trn_input,trn_target);
+
+%*********************OUTPUT*******************************
+output1=sim(net1,trn_input);
+%view(net1);
+%gensim(net1);
+
+%**************************NETWORK PARAMETERS*************
+input_weights=net1.IW{1,1};
+output_weights=net1.LW{2,1};
+net_bias=net1.b;
+
+%***********************ERROR CALCULATION****************
+error=trn_target-output1;
+perf=mse(error);
+
+%********************OUTPUT VISUALIZTION ***************
+scatter3(x,y,output1,75,'filled');
+for i=1:4
+    if output1(i)<=0.5
+        output2(i)=0;
+    else
+        output2(i)=1;
+    end
+end
+
+%****************VALIDATION*************************************
+x1=[0.1 0.8 0 1.1;3 2 -5 -8];
+output3=sim(net1,x1);
+
+for i=1:4
+    if output3(i)<=0.5
+        output4(i)=0;
+    else
+        output4(i)=1;
+    end
+end
